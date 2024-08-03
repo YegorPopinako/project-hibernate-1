@@ -1,23 +1,43 @@
 package com.game.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 import java.util.Date;
 
-
+@Entity
+@Table(name = "player", schema = "rpg")
 public class Player {
+
+    @Id
+    @Column(nullable = false)
     private Long id;
 
+    @Column(nullable = false, length = 12)
     private String name;
 
+    @Column(nullable = false, length = 30)
     private String title;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.ORDINAL)
     private Race race;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.ORDINAL)
     private Profession profession;
 
+    @Column(nullable = false)
     private Date birthday;
 
+    @Column(nullable = false)
     private Boolean banned;
 
+    @Column(nullable = false)
     private Integer level;
 
     public Player() {
