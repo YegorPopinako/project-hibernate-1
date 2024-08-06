@@ -1,9 +1,12 @@
 package com.game.repository;
 
 import com.game.entity.Player;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.cfg.Environment;
+import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 
 import javax.annotation.PreDestroy;
@@ -31,36 +34,59 @@ public class PlayerRepositoryDB implements IPlayerRepository {
 
     @Override
     public List<Player> getAll(int pageNumber, int pageSize) {
-        return null;
+        Session session = sessionFactory.openSession();
+        Query<Player> query = session.createNativeQuery("select * from player offset :pageNumber limit :pageSize", Player.class)
+                .setParameter("pageNumber", pageNumber)
+                .setParameter("pageSize", pageSize);
+        return query.list();
     }
 
     @Override
     public int getAllCount() {
-        return 0;
+        Session session = sessionFactory.openSession();
+        Query<Integer> query = session.createNamedQuery("Player_getAllCount", Integer.class);
+        return query.getSingleResult();
     }
 
     @Override
     public Player save(Player player) {
-        return null;
+        Session session = sessionFactory.openSession();
+        Transaction tr = session.beginTransaction();
+        session.persist(player);
+        tr.commit();
+        session.close();
+        return player;
     }
 
     @Override
     public Player update(Player player) {
-        return null;
+        Session session = sessionFactory.openSession();
+        Transaction tr = session.beginTransaction();
+        session.merge(player);
+        tr.commit();
+        session.close();
+        return player;
     }
 
     @Override
     public Optional<Player> findById(long id) {
-        return Optional.empty();
+        Session session = sessionFactory.openSession();
+        Query<Player> query = session.createQuery("from Player where id = :id", Player.class)
+                .setParameter("id", id);
+        return query.uniqueResultOptional();
     }
 
     @Override
     public void delete(Player player) {
-
+        Session session = sessionFactory.openSession();
+        Transaction tr = session.beginTransaction();
+        session.delete(player);
+        tr.commit();
+        session.close();
     }
 
     @PreDestroy
     public void beforeStop() {
-
+        sessionFactory.close();
     }
 }

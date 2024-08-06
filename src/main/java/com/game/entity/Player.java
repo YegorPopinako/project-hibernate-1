@@ -5,12 +5,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 
 import java.util.Date;
 
 @Entity
 @Table(name = "player", schema = "rpg")
+@NamedQuery(name = "Player_getAllCount", query = "SELECT count(p) FROM Player p")
 public class Player {
 
     @Id
