@@ -27,7 +27,11 @@ public class PlayerRepositoryDB implements IPlayerRepository {
         properties.put(Environment.USER, "root");
         properties.put(Environment.PASS, "root");
         properties.put(Environment.HBM2DDL_AUTO, "update");
+        properties.put(Environment.DRIVER, "com.p6spy.engine.spy.P6SpyDriver");
+        properties.put(Environment.URL, "jdbc:p6spy:mysql://localhost:3306/rpg");
+
         sessionFactory = new Configuration()
+                .addAnnotatedClass(Player.class)
                 .setProperties(properties)
                 .buildSessionFactory();
     }
@@ -35,17 +39,21 @@ public class PlayerRepositoryDB implements IPlayerRepository {
     @Override
     public List<Player> getAll(int pageNumber, int pageSize) {
         Session session = sessionFactory.openSession();
-        Query<Player> query = session.createNativeQuery("select * from player offset :pageNumber limit :pageSize", Player.class)
+        Query<Player> query = session.createNativeQuery("SELECT * FROM player LIMIT :pageSize OFFSET :pageNumber", Player.class)
                 .setParameter("pageNumber", pageNumber)
                 .setParameter("pageSize", pageSize);
-        return query.list();
+        List<Player> result = query.list();
+        session.close();
+        return result;
     }
 
     @Override
     public int getAllCount() {
         Session session = sessionFactory.openSession();
-        Query<Integer> query = session.createNamedQuery("Player_getAllCount", Integer.class);
-        return query.getSingleResult();
+        Query<Long> query = session.createNamedQuery("Player_getAllCount", Long.class);
+        int count = query.getSingleResult().intValue();
+        session.close();
+        return count;
     }
 
     @Override
@@ -71,9 +79,11 @@ public class PlayerRepositoryDB implements IPlayerRepository {
     @Override
     public Optional<Player> findById(long id) {
         Session session = sessionFactory.openSession();
-        Query<Player> query = session.createQuery("from Player where id = :id", Player.class)
+        Query<Player> query = session.createQuery("FROM Player WHERE id = :id", Player.class)
                 .setParameter("id", id);
-        return query.uniqueResultOptional();
+        Optional<Player> result = query.uniqueResultOptional();
+        session.close();
+        return result;
     }
 
     @Override
